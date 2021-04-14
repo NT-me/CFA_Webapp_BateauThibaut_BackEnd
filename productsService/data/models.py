@@ -11,6 +11,7 @@ class Products(Base):
     sale = Column(Integer)
     category = Column(String)
     quantityInStock = Column(Integer)
+    discountPercentage = Column(Integer)
     discount = Column(Float)
     __table_args__ = (UniqueConstraint('pk'), UniqueConstraint('pid'))
 
