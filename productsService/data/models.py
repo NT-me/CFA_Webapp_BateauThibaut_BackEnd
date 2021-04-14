@@ -16,6 +16,7 @@ class Products(Base):
     __table_args__ = (UniqueConstraint('pk'), UniqueConstraint('pid'))
 
     def retValue(self, remoteJSON):
+        remoteJSON["discountPercentage"] = bool(self.discountPercentage)
         remoteJSON["discount"] = self.discount
         remoteJSON["sale"] = bool(self.sale)
         remoteJSON["quantityInStock"] = self.quantityInStock
