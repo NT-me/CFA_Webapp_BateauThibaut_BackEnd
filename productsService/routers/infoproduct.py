@@ -48,7 +48,7 @@ def show_all_products(category: Optional[str] = None, availability: Optional[boo
 
 @router.get("/{id}")
 def show_one_product(id):
-    resDB = session.query(Products).filter(Products.avaible == 1, Products.pid == id)
+    resDB = session.query(Products).filter(Products.pid == id)
     if resDB.all():
         r = requests.get(url=ADRESS_CANVA + "tig/product/{}".format(id))
         try:
