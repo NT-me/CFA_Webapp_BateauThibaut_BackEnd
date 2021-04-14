@@ -36,7 +36,8 @@ def manage_products(items: List[Item]):
 
             if item.discPer is not None:
                 if item.discPer <= 100 and item.discPer >= 0:
-                    currentProduct.update({Products.discountPercentage: item.discPer})
+                    newDiscountPrice = currentProduct.price * (item.discPer*0.01)
+                    currentProduct.update({Products.discountPercentage: item.discPer, Products.discount: newDiscountPrice})
                 else:
                     raise HTTPException(status_code=422, detail="On id {} product percentage is <0 or >100".format(item.id))
 
