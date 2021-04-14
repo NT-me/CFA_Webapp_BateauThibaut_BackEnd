@@ -19,16 +19,35 @@ engine = create_engine(db_string, connect_args={'check_same_thread': False})
 Session = sessionmaker(engine)
 session = Session()
 
+categorysList = ["POI", "CRU", "COQ"]
+
 
 @router.get("/all")
-def show_all_products(category: Optional[int] = None, availability: Optional[bool] = None, sale: Optional[bool] = None):
+def show_all_products(category: Optional[str] = None, availability: Optional[bool] = None, sale: Optional[bool] = None):
     resDB = session.query(Products)
     res = []
+
+    print(sale)
+    print(availability)
+    print(category)
+
+    if category is not None:
+        if category in categorysList:
+            resDB = list(filter(lambda x: x.category == category, resDB))
+
+    if availability is not None:
+        resDB = list(filter(lambda x: x.avaible == availability, resDB))
+
+    if sale is not None:
+        print("here")
+        resDB = list(filter(lambda x: x.sale == sale, resDB))
+
     for item in resDB:
         r = requests.get(url=ADRESS_CANVA + "tig/product/{}".format(item.pid))
         ret = r.json()
+
         ret["quantityInStock"] = item.quantityInStock
-        res.append(resDB.first().retValue(r.json()))
+        res.append(item.retValue(r.json()))
     return res
 
 
