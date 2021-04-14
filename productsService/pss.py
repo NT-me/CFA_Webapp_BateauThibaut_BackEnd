@@ -1,11 +1,11 @@
 import utils as u
 from fastapi import FastAPI
-from productsService.routers import infoproduct, stocks
+from productsService.routers import infoproduct, manageproducts
 from productsService.tasks import fetchData as fd
 from productsService.data.models import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 BASE_URL = u.ADRESS_CANVA
@@ -17,9 +17,17 @@ session = Session()
 Base.metadata.create_all(db_sal)
 fd.fetchProducts()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 app.include_router(infoproduct.router)
-# app.include_router(stocks.router)
+app.include_router(manageproducts.router)
 
 
 @app.get("/helloworld")
