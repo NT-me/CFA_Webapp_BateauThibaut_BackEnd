@@ -27,10 +27,6 @@ def show_all_products(category: Optional[str] = None, availability: Optional[boo
     resDB = session.query(Products)
     res = []
 
-    print(sale)
-    print(availability)
-    print(category)
-
     if category is not None:
         if category in categorysList:
             resDB = list(filter(lambda x: x.category == category, resDB))
@@ -39,7 +35,6 @@ def show_all_products(category: Optional[str] = None, availability: Optional[boo
         resDB = list(filter(lambda x: x.avaible == availability, resDB))
 
     if sale is not None:
-        print("here")
         resDB = list(filter(lambda x: x.sale == sale, resDB))
 
     for item in resDB:

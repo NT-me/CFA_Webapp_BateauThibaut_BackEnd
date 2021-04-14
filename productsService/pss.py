@@ -17,12 +17,7 @@ session = Session()
 Base.metadata.create_all(db_sal)
 fd.fetchProducts()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
 
 
 
