@@ -19,7 +19,7 @@ fd.fetchProducts()
 
 
 app.include_router(infoproduct.router)
-app.include_router(stocks.router)
+# app.include_router(stocks.router)
 
 
 @app.get("/helloworld")
