@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import requests
 import utils as u
-from productsService.data.models import Products
+from productsService.data.models import Products, History
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseModel
@@ -10,9 +10,14 @@ from typing import Optional, List
 ADRESS_CANVA = u.ADRESS_CANVA
 
 
+class stockClass(BaseModel):
+    quantity: int
+    type: str
+
+
 class Item(BaseModel):
     id: int
-    stock: Optional[int]
+    stock: Optional[stockClass]
     discPer: Optional[int]
 
 
@@ -24,6 +29,8 @@ db_string = u.DB_PATH
 engine = create_engine(db_string, connect_args={'check_same_thread': False})
 Session = sessionmaker(engine)
 session = Session()
+
+stockTypeList = ["A", "RPV", "RPI"]
 
 
 @router.post("/")
@@ -48,7 +55,7 @@ def manage_products(items: List[Item]):
 
             if item.stock is not None:
                 currentStock = currentProduct.first().quantityInStock
-                newStock = currentStock + item.stock
+                newStock = currentStock + item.stock.quantity
                 flagAv = True
                 if newStock < 0:
                     newStock = 0
@@ -58,6 +65,6 @@ def manage_products(items: List[Item]):
                 itemRet["availability"] = flagAv
             listRet.append(itemRet)
         session.commit()
-        return {"status":"success", "New state":listRet}
+        return {"status": "success", "New state": listRet}
     else:
         raise HTTPException(status_code=404, detail="At least one id doesn't match anything")

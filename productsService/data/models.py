@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Float, String, UniqueConstraint
+from sqlalchemy import Column, Integer, Float, String, UniqueConstraint, ForeignKey
 Base = declarative_base()
 
 
@@ -21,3 +21,13 @@ class Products(Base):
         remoteJSON["sale"] = bool(self.sale)
         remoteJSON["quantityInStock"] = self.quantityInStock
         return remoteJSON
+
+
+class History(Base):
+    __tablename__ = "history"
+    pk = Column(Integer, primary_key=True, autoincrement='ignore_fk')
+    pid = Column(Integer, ForeignKey('products.pid'))
+    time = Column(Integer)
+    transacts = Column(Integer)
+    quantity = Column(Integer)
+    __table_args__ = ((UniqueConstraint('pid', 'time')), UniqueConstraint('pk'))
