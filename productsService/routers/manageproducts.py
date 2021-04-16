@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import requests
 import utils as u
-from productsService.data.models import Products, History
+from productsService.data.models import Products
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseModel
@@ -12,6 +12,7 @@ ADRESS_CANVA = u.ADRESS_CANVA
 
 class stockClass(BaseModel):
     quantity: int
+    price: int
     type: str
 
 
@@ -42,14 +43,18 @@ def manage_products(items: List[Item]):
         for item in items:
             currentProduct = session.query(Products).filter(Products.pid == item.id)
             itemRet = {"id": item.id}
+            listJSON = []
+            r = requests.get(url=ADRESS_CANVA + "tig/product/{}".format(item.id))
+            remoteProduct = r.json()
+
             if item.discPer is not None:
                 if item.discPer <= 100 and item.discPer >= 0:
-                    r = requests.get(url=ADRESS_CANVA + "tig/product/{}".format(item.id))
-                    remoteProduct = r.json()
                     newDiscountPrice = remoteProduct["price"] * (item.discPer*0.01)
                     currentProduct.update({Products.discountPercentage: item.discPer, Products.discount: newDiscountPrice})
                     itemRet["discountPercentage"] = item.discPer
                     itemRet["discount"] = newDiscountPrice
+                    session.commit()
+
                 else:
                     raise HTTPException(status_code=422, detail="On id {} product percentage is <0 or >100".format(item.id))
 
@@ -60,11 +65,30 @@ def manage_products(items: List[Item]):
                 if newStock < 0:
                     newStock = 0
                     flagAv = False
+
                 currentProduct.update({Products.quantityInStock: newStock, Products.avaible: flagAv})
                 itemRet["quantityInStock"] = newStock
                 itemRet["availability"] = flagAv
+
+                if item.stock.type == "A":
+                    if currentProduct.first().sale:
+                        rpPrice = currentProduct.first().discount
+                    else:
+                        rpPrice = remoteProduct["price"]
+                    rpPrice *= item.stock.quantity
+                else:
+                    rpPrice = item.stock.price
+
+                reqJSON = {"pid": currentProduct.first().pid,
+                "price": rpPrice,
+                "quantity": item.stock.quantity,
+                "type": item.stock.type}
+                listJSON.append(reqJSON)
+                session.commit()
+
+            requests.post(url="http://localhost:8000/bi/info/history", json=listJSON)
             listRet.append(itemRet)
-        session.commit()
         return {"status": "success", "New state": listRet}
+
     else:
         raise HTTPException(status_code=404, detail="At least one id doesn't match anything")

@@ -23,11 +23,11 @@ class Products(Base):
         return remoteJSON
 
 
-class History(Base):
-    __tablename__ = "history"
-    pk = Column(Integer, primary_key=True, autoincrement='ignore_fk')
-    pid = Column(Integer, ForeignKey('products.pid'))
-    time = Column(Integer)
-    transacts = Column(Integer)
-    quantity = Column(Integer)
-    __table_args__ = ((UniqueConstraint('pid', 'time')), UniqueConstraint('pk'))
+# class History(Base):
+#     __tablename__ = "history"
+#     pk = Column(Integer, primary_key=True, autoincrement='ignore_fk')
+#     pid = Column(Integer, ForeignKey('products.pid'))
+#     time = Column(Integer)
+#     transacts = Column(Integer)
+#     quantity = Column(Integer)
+#     __table_args__ = ((UniqueConstraint('pid', 'time')), UniqueConstraint('pk'))
