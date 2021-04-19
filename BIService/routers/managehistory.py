@@ -27,15 +27,19 @@ def return_informations_about_transactions(request: Request, startInterval: Opti
 endInterval: Optional[int] = None,
 category: Optional[str] = None,
 availability: Optional[bool] = None,
-sale: Optional[bool] = None):
+sale: Optional[bool] = None,
+type: Optional[str] = None):
 
     resDB = session.query(Transactions)
 
     if startInterval is not None:
-        resDB.filter(Transactions.time >= startInterval)
+        resDB = resDB.filter(Transactions.time >= startInterval)
 
     if endInterval is not None:
-        resDB.filter(Transactions.time <= endInterval)
+        resDB = resDB.filter(Transactions.time <= endInterval)
+
+    if type is not None and type in u.LIST_BI_KEYWORDS:
+        resDB = resDB.filter(Transactions.type == type)
 
     if (category is not None) or (availability is not None) or (sale is not None):
         reqURL_BASE = u.localAPIAdress(request)+"/products/info/all?".format(request.url.port)
@@ -56,14 +60,16 @@ sale: Optional[bool] = None):
                 flag = True
             reqURL_BASE += "sale={0}".format(sale)
 
-        r = requests.get(url=reqURL_BASE)
+        r = requests.get(url=reqURL_BASE).json()
+        resDB = resDB.filter(Transactions.pid.in_([json["id"] for json in r]))
 
+    print(resDB)
     ret = resDB.all()
 
     if ret:
         return ret
     else:
-        raise HTTPException(status_code=404, detail="No transactions were found in these dates")
+        raise HTTPException(status_code=404, detail="No transactions were found in these dates with these filters")
 
 
 class ItemTransact(BaseModel):

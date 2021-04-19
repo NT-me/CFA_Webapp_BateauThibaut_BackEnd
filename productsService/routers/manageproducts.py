@@ -31,7 +31,7 @@ engine = create_engine(db_string, connect_args={'check_same_thread': False})
 Session = sessionmaker(engine)
 session = Session()
 
-stockTypeList = ["A", "RPV", "RPI"]
+stockTypeList = u.LIST_BI_KEYWORDS
 
 
 @router.patch("/")
