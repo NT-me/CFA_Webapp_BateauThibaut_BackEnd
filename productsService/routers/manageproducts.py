@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 import requests
 import utils as u
 from productsService.data.models import Products
@@ -35,7 +35,7 @@ stockTypeList = ["A", "RPV", "RPI"]
 
 
 @router.post("/")
-def manage_products(items: List[Item]):
+def manage_products(items: List[Item], request: Request):
     resDB = session.query(Products).filter(Products.pid.in_([i.id for i in items]))
     HTTPRet = {"status": "success"}
 
@@ -86,7 +86,7 @@ def manage_products(items: List[Item]):
             listRet.append(itemRet)
             HTTPRet["New state"] = listRet
         if listJSON:
-            ret = requests.post(url="http://localhost:8000/bi/info/history", json=listJSON)
+            ret = requests.post(url="http://localhost:{0}/bi/info/history".format(request.url.port), json=listJSON)
             HTTPRet["BI Return"] = ret.json()
         return HTTPRet
 

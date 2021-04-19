@@ -3,7 +3,6 @@ from productsService import pss
 from BIService import bis
 from fastapi.middleware.cors import CORSMiddleware
 
-
 app = FastAPI()
 
 app.add_middleware(

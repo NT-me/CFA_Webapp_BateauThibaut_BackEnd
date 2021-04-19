@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 import requests
 import utils as u
 from BIService.data.models import Transactions
@@ -23,7 +23,7 @@ session = Session()
 
 
 @router.get("/history/all")
-def return_informations_about_transactions(startInterval: Optional[int] = None,
+def return_informations_about_transactions(request: Request, startInterval: Optional[int] = None,
 endInterval: Optional[int] = None,
 category: Optional[str] = None,
 availability: Optional[bool] = None,
@@ -38,7 +38,7 @@ sale: Optional[bool] = None):
         resDB.filter(Transactions.time <= endInterval)
 
     if (category is not None) or (availability is not None) or (sale is not None):
-        reqURL_BASE = "http://localhost:8000/products/info/all?"
+        reqURL_BASE = "http://localhost:{0}/products/info/all?".format(request.url.port)
         flag = False
         if category is not None:
             reqURL_BASE += "category={0}".format(category)
