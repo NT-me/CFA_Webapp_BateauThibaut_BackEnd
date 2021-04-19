@@ -34,7 +34,7 @@ session = Session()
 stockTypeList = ["A", "RPV", "RPI"]
 
 
-@router.post("/")
+@router.patch("/")
 def manage_products(items: List[Item], request: Request):
     resDB = session.query(Products).filter(Products.pid.in_([i.id for i in items]))
     HTTPRet = {"status": "success"}

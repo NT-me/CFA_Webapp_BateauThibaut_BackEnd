@@ -76,7 +76,7 @@ class ItemTransact(BaseModel):
     discount: float
 
 
-@router.post("/history")
+@router.put("/history")
 def add_new_transaction(listTransactions: List[ItemTransact]):
     retList = []
     for item in listTransactions:
