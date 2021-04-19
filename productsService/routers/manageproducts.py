@@ -86,7 +86,7 @@ def manage_products(items: List[Item], request: Request):
             listRet.append(itemRet)
             HTTPRet["New state"] = listRet
         if listJSON:
-            ret = requests.post(url="http://localhost:{0}/bi/info/history".format(request.url.port), json=listJSON)
+            ret = requests.post(url=u.localAPIAdress(request)+"/bi/info/history".format(request.url.port), json=listJSON)
             HTTPRet["BI Return"] = ret.json()
         return HTTPRet
 

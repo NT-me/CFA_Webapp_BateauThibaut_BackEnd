@@ -38,7 +38,7 @@ sale: Optional[bool] = None):
         resDB.filter(Transactions.time <= endInterval)
 
     if (category is not None) or (availability is not None) or (sale is not None):
-        reqURL_BASE = "http://localhost:{0}/products/info/all?".format(request.url.port)
+        reqURL_BASE = u.localAPIAdress(request)+"/products/info/all?".format(request.url.port)
         flag = False
         if category is not None:
             reqURL_BASE += "category={0}".format(category)
