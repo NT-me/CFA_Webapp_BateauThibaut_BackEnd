@@ -22,13 +22,6 @@ Session = sessionmaker(engine)
 session = Session()
 
 
-class ItemTransact(BaseModel):
-    pid: int
-    price: int
-    quantity: int
-    type: str
-
-
 @router.get("/history/all")
 def return_informations_about_transactions(startInterval: Optional[int] = None,
 endInterval: Optional[int] = None,
@@ -46,6 +39,7 @@ sale: Optional[bool] = None):
 
     if (category is not None) or (availability is not None) or (sale is not None):
         reqURL_BASE = "http://localhost:8000/products/info/all?"
+        flag = False
         if category is not None:
             reqURL_BASE += "category={0}".format(category)
             flag = True
@@ -71,14 +65,39 @@ sale: Optional[bool] = None):
         raise HTTPException(status_code=404, detail="No transactions were found in these dates")
 
 
+class ItemTransact(BaseModel):
+    pid: int
+    price: int
+    quantity: int
+    type: str
+    unitprice: int
+    sale: bool
+    discount: float
+
+
 @router.post("/history")
 def add_new_transaction(listTransactions: List[ItemTransact]):
     retList = []
+    print("there0")
     for item in listTransactions:
+        print("there0.5")
+        print("there1")
+        if item.type == "A":
+            if item.sale:
+                rpPrice = item.discount
+            else:
+                rpPrice = item.price
+            rpPrice *= item.quantity
+        else:
+            rpPrice = item.price
+
         ts = time.time()
-        tr = Transactions(pid=item.pid, time=ts, type=item.type, price=item.price, quantity=item.quantity)
+        tr = Transactions(pid=item.pid, time=ts, type=item.type, totalPrice=rpPrice, quantity=item.quantity)
+        print("there2")
+
         retList.append(item)
         session.add(tr)
+    print("there3")
 
     session.commit()
     return retList

@@ -9,6 +9,6 @@ class Transactions(Base):
     pid = Column(Integer)
     time = Column(Float)
     type = Column(String)
-    price = Column(Integer)
+    totalPrice = Column(Integer)
     quantity = Column(Integer)
     __table_args__ = ((UniqueConstraint('pid', 'time')), UniqueConstraint('pk'))

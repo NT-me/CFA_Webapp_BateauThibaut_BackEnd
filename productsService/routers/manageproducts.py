@@ -37,6 +37,8 @@ stockTypeList = ["A", "RPV", "RPI"]
 @router.post("/")
 def manage_products(items: List[Item]):
     resDB = session.query(Products).filter(Products.pid.in_([i.id for i in items]))
+    HTTPRet = {"status": "success"}
+
     pr = resDB.all()
     if pr and len(pr) == len(items): # Id existante
         listRet = []
@@ -70,25 +72,23 @@ def manage_products(items: List[Item]):
                 itemRet["quantityInStock"] = newStock
                 itemRet["availability"] = flagAv
 
-                if item.stock.type == "A":
-                    if currentProduct.first().sale:
-                        rpPrice = currentProduct.first().discount
-                    else:
-                        rpPrice = remoteProduct["price"]
-                    rpPrice *= item.stock.quantity
-                else:
-                    rpPrice = item.stock.price
-
                 reqJSON = {"pid": currentProduct.first().pid,
-                "price": rpPrice,
+                "price": item.stock.price,
                 "quantity": item.stock.quantity,
-                "type": item.stock.type}
+                "type": item.stock.type,
+                "unitprice": remoteProduct["price"],
+                "sale": currentProduct.first().sale,
+                "discount": currentProduct.first().discount
+                }
                 listJSON.append(reqJSON)
                 session.commit()
 
-            requests.post(url="http://localhost:8000/bi/info/history", json=listJSON)
+                ret = requests.post(url="http://localhost:8000/bi/info/history", json=listJSON)
+                HTTPRet["BI return"] = ret.json()
+
             listRet.append(itemRet)
-        return {"status": "success", "New state": listRet}
+            HTTPRet["New state"] = listRet
+        return HTTPRet
 
     else:
         raise HTTPException(status_code=404, detail="At least one id doesn't match anything")
