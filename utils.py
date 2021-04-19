@@ -9,7 +9,7 @@ def localAPIAdress(request: Request):
     ADRESS = "http://localhost"
     PORT = str(request.url.port)
 
-    if PORT is None:
+    if PORT == "None":
         PORT = "80"
 
     return ADRESS + ':' + PORT
