@@ -42,10 +42,10 @@ def manage_products(items: List[Item]):
     pr = resDB.all()
     if pr and len(pr) == len(items): # Id existante
         listRet = []
+        listJSON = []
         for item in items:
             currentProduct = session.query(Products).filter(Products.pid == item.id)
             itemRet = {"id": item.id}
-            listJSON = []
             r = requests.get(url=ADRESS_CANVA + "tig/product/{}".format(item.id))
             remoteProduct = r.json()
 
@@ -83,11 +83,11 @@ def manage_products(items: List[Item]):
                 listJSON.append(reqJSON)
                 session.commit()
 
-                ret = requests.post(url="http://localhost:8000/bi/info/history", json=listJSON)
-                HTTPRet["BI return"] = ret.json()
-
             listRet.append(itemRet)
             HTTPRet["New state"] = listRet
+        if listJSON:
+            ret = requests.post(url="http://localhost:8000/bi/info/history", json=listJSON)
+            HTTPRet["BI Return"] = ret.json()
         return HTTPRet
 
     else:

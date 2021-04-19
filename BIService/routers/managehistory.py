@@ -56,7 +56,8 @@ sale: Optional[bool] = None):
                 flag = True
             reqURL_BASE += "sale={0}".format(sale)
 
-        print(reqURL_BASE)
+        r = requests.get(url=reqURL_BASE)
+
     ret = resDB.all()
 
     if ret:
@@ -78,26 +79,30 @@ class ItemTransact(BaseModel):
 @router.post("/history")
 def add_new_transaction(listTransactions: List[ItemTransact]):
     retList = []
-    print("there0")
     for item in listTransactions:
-        print("there0.5")
-        print("there1")
+        flagOkstl = False
         if item.type == "A":
+            flagOkstl = True
             if item.sale:
                 rpPrice = item.discount
             else:
                 rpPrice = item.price
             rpPrice *= item.quantity
-        else:
+        elif item.type == "RPI":
+            flagOkstl = True
+            rpPrice = 0
+        elif item.type == "RPV":
+            flagOkstl = True
             rpPrice = item.price
 
-        ts = time.time()
-        tr = Transactions(pid=item.pid, time=ts, type=item.type, totalPrice=rpPrice, quantity=item.quantity)
-        print("there2")
+        if flagOkstl:
+            ts = time.time()
+            tr = Transactions(pid=item.pid, time=ts, type=item.type, totalPrice=rpPrice, quantity=item.quantity)
+            retList.append({"State": "Success", "id": item.pid, "Comment": "Transaction saved"})
+        else:
+            retList.append({"State": "Error on type", "id": item.pid, "Comment": "Type need to be A, RPI or RPV"})
 
-        retList.append(item)
         session.add(tr)
-    print("there3")
 
     session.commit()
     return retList
