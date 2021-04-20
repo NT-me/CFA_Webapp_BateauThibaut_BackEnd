@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from typing import Optional, List
 from pydantic import BaseModel
 import time
+from datetime import date, datetime
 
 
 ADRESS_CANVA = u.ADRESS_CANVA
@@ -129,3 +130,29 @@ def add_new_transaction(listTransactions: List[ItemTransact]):
 
     session.commit()
     return retList
+
+
+@router.get("/accountingresult")
+def show_accounting_result(year: Optional[int] = date.today().year):
+    fstDay = datetime(year, 1, 1, 0, 0)
+    lstDay = datetime(year, 12, 31, 23, 59)
+
+    tsFstDay = time.mktime(fstDay.timetuple())
+    tsLstDay = time.mktime(lstDay.timetuple())
+
+    resDB = session.query(Transactions).filter(Transactions.time >= tsFstDay, Transactions.time <= tsLstDay)
+    retDB = resDB.all()
+    if len(retDB) > 0:
+        rpvList = [x.totalPrice for x in retDB if x.type == "RPV"]
+        aList = [x.totalPrice for x in retDB if x.type == "A"]
+        ca = sum(rpvList)
+        benef = ca - sum(aList)
+        if benef > 0:
+            mntImpot = benef * 0.3
+        else:
+            mntImpot = 0
+        resulting = benef - mntImpot
+
+        return {"year": year, "turnover": ca, "profit": benef, "taxes": mntImpot, "result": resulting}
+    else:
+        raise HTTPException(status_code=404, detail="No transactions were found this year")
