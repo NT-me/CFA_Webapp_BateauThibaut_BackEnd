@@ -62,31 +62,39 @@ def manage_products(items: List[Item], request: Request):
 
             if item.stock is not None:
                 currentStock = currentProduct.first().quantityInStock
-                newStock = currentStock + item.stock.quantity
-                flagAv = True
-                if newStock < 0:
-                    newStock = 0
-                    flagAv = False
+                if item.stock.type == "A":
+                    newStock = currentStock + item.stock.quantity
+                else:
+                    newStock = currentStock - item.stock.quantity
 
-                currentProduct.update({Products.quantityInStock: newStock, Products.avaible: flagAv})
-                itemRet["quantityInStock"] = newStock
-                itemRet["availability"] = flagAv
+                if item.stock.type == "RPV" and (not currentProduct.first().avaible or newStock < 0):
+                    # raise HTTPException(status_code=403, detail="You cannot sell product you don't have, check id:{}".format(item.id))
+                    itemRet["Error"] = "You cannot sell product you don't have, check id:{}".format(item.id)
+                else:
+                    flagAv = True
+                    if newStock < 0:
+                        item.stock.quantity = currentStock
+                        newStock = 0
+                        flagAv = False
+                    currentProduct.update({Products.quantityInStock: newStock, Products.avaible: flagAv})
+                    itemRet["quantityInStock"] = newStock
+                    itemRet["availability"] = flagAv
 
-                reqJSON = {"pid": currentProduct.first().pid,
-                "price": item.stock.price,
-                "quantity": item.stock.quantity,
-                "type": item.stock.type,
-                "unitprice": remoteProduct["price"],
-                "sale": currentProduct.first().sale,
-                "discount": currentProduct.first().discount
-                }
-                listJSON.append(reqJSON)
-                session.commit()
+                    reqJSON = {"pid": currentProduct.first().pid,
+                    "price": item.stock.price,
+                    "quantity": item.stock.quantity,
+                    "type": item.stock.type,
+                    "unitprice": remoteProduct["price"],
+                    "sale": currentProduct.first().sale,
+                    "discount": currentProduct.first().discount}
+
+                    listJSON.append(reqJSON)
+                    session.commit()
 
             listRet.append(itemRet)
             HTTPRet["New state"] = listRet
         if listJSON:
-            ret = requests.put(url=u.localAPIAdress(request)+"/bi/info/history".format(request.url.port), json=listJSON)
+            ret = requests.put(url=u.localAPIAdress(request)+"/bi/info/history", json=listJSON)
             HTTPRet["BI Return"] = ret.json()
         return HTTPRet
 

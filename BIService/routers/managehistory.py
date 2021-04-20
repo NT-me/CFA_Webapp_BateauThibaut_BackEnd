@@ -28,7 +28,8 @@ endInterval: Optional[int] = None,
 category: Optional[str] = None,
 availability: Optional[bool] = None,
 sale: Optional[bool] = None,
-type: Optional[str] = None
+type: Optional[str] = None,
+revenue: Optional[bool] = None
 ):
 
     resDB = session.query(Transactions)
@@ -64,9 +65,19 @@ type: Optional[str] = None
         r = requests.get(url=reqURL_BASE).json()
         resDB = resDB.filter(Transactions.pid.in_([json["id"] for json in r]))
 
-    ret = resDB.all()
+    retDB = resDB.all()
+    ret = {"transactions": retDB}
 
-    if ret:
+    if revenue is not None:
+        rpvList = [x.totalPrice for x in retDB if x.type == "RPV"]
+        aList = [x.totalPrice for x in retDB if x.type == "A"]
+        ca = sum(rpvList)
+        marge = ca - sum(aList)
+        ret["relative revenue"] = {}
+        ret["relative revenue"]["turnover"] = ca
+        ret["relative revenue"]["margin"] = marge
+
+    if retDB:
         return ret
     else:
         raise HTTPException(status_code=404, detail="No transactions were found in these dates with these filters")
@@ -103,7 +114,13 @@ def add_new_transaction(listTransactions: List[ItemTransact]):
 
         if flagOkstl:
             ts = time.time()
-            tr = Transactions(pid=item.pid, time=ts, type=item.type, totalPrice=rpPrice, quantity=item.quantity)
+            tr = Transactions(pid=item.pid,
+            time=ts,
+            type=item.type,
+            totalPrice=rpPrice,
+            sale=item.sale,
+            quantity=item.quantity)
+
             retList.append({"State": "Success", "id": item.pid, "Comment": "Transaction saved"})
         else:
             retList.append({"State": "Error on type", "id": item.pid, "Comment": "Type need to be A, RPI or RPV"})

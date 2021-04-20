@@ -21,13 +21,3 @@ class Products(Base):
         remoteJSON["sale"] = bool(self.sale)
         remoteJSON["quantityInStock"] = self.quantityInStock
         return remoteJSON
-
-
-# class History(Base):
-#     __tablename__ = "history"
-#     pk = Column(Integer, primary_key=True, autoincrement='ignore_fk')
-#     pid = Column(Integer, ForeignKey('products.pid'))
-#     time = Column(Integer)
-#     transacts = Column(Integer)
-#     quantity = Column(Integer)
-#     __table_args__ = ((UniqueConstraint('pid', 'time')), UniqueConstraint('pk'))
