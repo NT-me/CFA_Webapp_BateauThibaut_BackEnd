@@ -28,7 +28,8 @@ endInterval: Optional[int] = None,
 category: Optional[str] = None,
 availability: Optional[bool] = None,
 sale: Optional[bool] = None,
-type: Optional[str] = None):
+type: Optional[str] = None
+):
 
     resDB = session.query(Transactions)
 
@@ -63,7 +64,6 @@ type: Optional[str] = None):
         r = requests.get(url=reqURL_BASE).json()
         resDB = resDB.filter(Transactions.pid.in_([json["id"] for json in r]))
 
-    print(resDB)
     ret = resDB.all()
 
     if ret:
@@ -92,7 +92,7 @@ def add_new_transaction(listTransactions: List[ItemTransact]):
             if item.sale:
                 rpPrice = item.discount
             else:
-                rpPrice = item.price
+                rpPrice = item.unitprice
             rpPrice *= item.quantity
         elif item.type == "RPI":
             flagOkstl = True
