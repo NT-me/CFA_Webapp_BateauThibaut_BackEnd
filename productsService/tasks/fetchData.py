@@ -27,7 +27,7 @@ def fetchProducts():
             discount = item["discount"]
             available = 1 if item["availability"] else 0
             discountPercentage = 0
-            quantityInStock = ran.randint(1, 20) if item["availability"] else 0
+            quantityInStock = 0
             pr = Products(pid=pid, avaible=available, sale=sale, category=category, quantityInStock=quantityInStock,discountPercentage = discountPercentage, discount=discount)
             session.add(pr)
             session.commit()
