@@ -51,7 +51,7 @@ def manage_products(items: List[Item], request: Request):
 
             if item.discPer is not None:
                 if item.discPer <= 100 and item.discPer >= 0:
-                    newDiscountPrice = round((remoteProduct["price"] * (item.discPer*0.01)), 2)
+                    newDiscountPrice = round((remoteProduct["price"] * (1-(item.discPer*0.01))), 2)
                     currentProduct.update({Products.discountPercentage: item.discPer, Products.discount: newDiscountPrice})
                     itemRet["discountPercentage"] = item.discPer
                     itemRet["discount"] = newDiscountPrice
