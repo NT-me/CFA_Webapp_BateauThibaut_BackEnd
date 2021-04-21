@@ -112,7 +112,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 async def get_current_active_user(current_user: dbUser = Depends(get_current_user)):
-    if current_user.active:
+    if not current_user.active:
         raise HTTPException(status_code=400, detail="Inactive user")
 
     return User(username=current_user.username,
