@@ -33,6 +33,7 @@ type: Optional[str] = None,
 revenue: Optional[bool] = None
 ):
 
+    reqURL_BASE = u.localAPIAdress(request)+"/products/info/all"
     resDB = session.query(Transactions)
 
     if startInterval is not None:
@@ -45,8 +46,8 @@ revenue: Optional[bool] = None
         resDB = resDB.filter(Transactions.type == type)
 
     if (category is not None) or (availability is not None) or (sale is not None):
-        reqURL_BASE = u.localAPIAdress(request)+"/products/info/all?".format(request.url.port)
         flag = False
+        reqURL_BASE += '?'
         if category is not None:
             reqURL_BASE += "category={0}".format(category)
             flag = True
@@ -65,9 +66,18 @@ revenue: Optional[bool] = None
 
         r = requests.get(url=reqURL_BASE).json()
         resDB = resDB.filter(Transactions.pid.in_([json["id"] for json in r]))
+    else:
+        r = requests.get(url=reqURL_BASE).json()
 
     retDB = resDB.all()
-    ret = {"transactions": retDB}
+
+    transactList = []
+    for tran in retDB:
+        name = [pr["name"] for pr in r if pr["id"] == tran.pid][0]
+        tran = tran.__dict__
+        tran["name"] = name
+        transactList.append(tran)
+    ret = {"transactions": transactList}
 
     if revenue is not None:
         rpvList = [x.totalPrice for x in retDB if x.type == "RPV"]
