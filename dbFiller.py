@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
         if (actualQt - quantity) <= 0:
             type = 'A'
-            quantity = abs(actualQt) + 1
+            quantity = abs(actualQt - quantity) + 1
 
         if type == "A":
             totalPrice = quantity * unitPrice
