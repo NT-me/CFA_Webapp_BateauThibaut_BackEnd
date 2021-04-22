@@ -35,6 +35,7 @@ revenue: Optional[bool] = None
 
     reqURL_BASE = u.localAPIAdress(request)+"/products/info/all"
     resDB = session.query(Transactions)
+    headers = {'Connection': 'close'}
 
     if startInterval is not None:
         resDB = resDB.filter(Transactions.time >= startInterval)
@@ -67,13 +68,12 @@ revenue: Optional[bool] = None
                 flag = True
             reqURL_BASE += "sale={0}".format(sale)
 
-        r = requests.get(url=reqURL_BASE).json()
+        r = requests.get(url=reqURL_BASE, headers=headers).json()
         resDB = resDB.filter(Transactions.pid.in_([json["id"] for json in r]))
     else:
-        r = requests.get(url=reqURL_BASE).json()
+        r = requests.get(url=reqURL_BASE, headers=headers).json()
 
     retDB = resDB.all()
-
 
     transactList = []
     for tran in retDB:
