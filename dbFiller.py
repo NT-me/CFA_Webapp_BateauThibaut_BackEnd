@@ -25,8 +25,8 @@ if __name__ == "__main__":
         id = currentPr["id"]
         sale = 1 if currentPr["sale"] else 0
         unitPrice = currentPr["price"]
-        sellPrice = unitPrice + 10
-        type = random.choices(typesList, weights=(5, 1, 3))
+        sellPrice = unitPrice * 2 + 10
+        type = random.choices(typesList, weights=(5, 1, 1))
 
         quantity = random.randint(1, 100)
 
