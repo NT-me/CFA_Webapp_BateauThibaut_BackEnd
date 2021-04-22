@@ -41,8 +41,8 @@ def testAuth(request: Request, Auth: str = Header(None)):
 def show_all_products(request: Request,
 category: Optional[str] = None,
 availability: Optional[bool] = None,
-sale: Optional[bool] = None,
-Auth: str = Depends(testAuth)):
+sale: Optional[bool] = None):
+# Auth: str = Depends(testAuth)
     resDB = session.query(Products)
     res = []
 

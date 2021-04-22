@@ -74,6 +74,7 @@ revenue: Optional[bool] = None
 
     retDB = resDB.all()
 
+
     transactList = []
     for tran in retDB:
         name = [pr["name"] for pr in r if pr["id"] == tran.pid][0]
