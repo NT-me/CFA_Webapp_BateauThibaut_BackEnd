@@ -42,8 +42,11 @@ revenue: Optional[bool] = None
     if endInterval is not None:
         resDB = resDB.filter(Transactions.time <= endInterval)
 
-    if type is not None and type in u.LIST_BI_KEYWORDS:
-        resDB = resDB.filter(Transactions.type == type)
+    if type is not None:
+        if type in u.LIST_BI_KEYWORDS:
+            resDB = resDB.filter(Transactions.type == type)
+        else:
+            raise HTTPException(status_code=422, detail="Type not exist")
 
     if (category is not None) or (availability is not None) or (sale is not None):
         flag = False
