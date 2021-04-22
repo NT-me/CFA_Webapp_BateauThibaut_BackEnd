@@ -33,6 +33,6 @@ def fetchProducts():
             session.commit()
 
 
-sched.add_job(fetchProducts, 'interval', minutes=2)
+sched.add_job(fetchProducts, 'interval', minutes=20)
 
 sched.start()

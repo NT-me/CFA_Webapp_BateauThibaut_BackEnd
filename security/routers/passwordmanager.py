@@ -17,17 +17,6 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
-    }
-}
-
-
 class newUser(BaseModel):
     username: str
     full_name: str
@@ -38,7 +27,8 @@ class User(BaseModel):
     username: str
     email: Optional[str] = None
     full_name: Optional[str] = None
-    disabled: Optional[bool] = None
+    active: Optional[bool] = None
+
 
 class Token(BaseModel):
     access_token: str
@@ -101,7 +91,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        #token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
 
@@ -118,7 +107,7 @@ async def get_current_active_user(current_user: dbUser = Depends(get_current_use
     return User(username=current_user.username,
     email=current_user.email,
     full_name=current_user.full_name,
-    disabled=current_user.active)
+    active=current_user.active)
 
 
 @router.post("/token", response_model=Token)
@@ -140,6 +129,12 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @router.get("/users/me/", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
+
+
+@router.get("/users/test/", response_model=dict)
+async def test_if_user_is_connected(current_user: User = Depends(get_current_active_user)):
+    return {"detail": True}
+
 
 @router.post("/new")
 async def create_new_user(newuser: newUser):
