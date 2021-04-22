@@ -95,7 +95,7 @@ revenue: Optional[bool] = None
     if retDB:
         return ret
     else:
-        raise HTTPException(status_code=204, detail="No transactions were found in these dates with these filters")
+        raise HTTPException(status_code=404, detail="No transactions were found in these dates with these filters")
 
 
 class ItemTransact(BaseModel):
@@ -169,4 +169,4 @@ def show_accounting_result(year: Optional[int] = date.today().year):
 
         return {"year": year, "turnover": ca, "profit": benef, "taxes": mntImpot, "result": resulting}
     else:
-        raise HTTPException(status_code=204, detail="No transactions were found this year")
+        raise HTTPException(status_code=404, detail="No transactions were found this year")
