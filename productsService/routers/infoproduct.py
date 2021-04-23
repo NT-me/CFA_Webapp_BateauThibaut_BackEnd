@@ -22,28 +22,13 @@ session = Session()
 categorysList = ["POI", "CRU", "COQ"]
 
 
-def testAuth(request: Request, Auth: str = Header(None)):
-    headers = {'Authorization': Auth}
-    print(Auth)
-    ret = requests.get(url=u.localAPIAdress(request)+"/security/pswd/users/test/", headers=headers)
-    ret = ret.json()
-    if ret["detail"] is True:
-        return True
-    else:
-        return True
-        # raise HTTPException(
-        #     status_code=status.HTTP_401_UNAUTHORIZED,
-        #     detail="Incorrect username or password",
-        #     headers={"WWW-Authenticate": "Bearer"},
-        # )
-
-
 @router.get("/all")
 async def show_all_products(request: Request,
 category: Optional[str] = None,
 availability: Optional[bool] = None,
-sale: Optional[bool] = None):
-# Auth: str = Depends(testAuth)
+sale: Optional[bool] = None,
+Auth: str = Depends(u.testAuth)):
+
     resDB = session.query(Products)
     res = []
 
@@ -68,7 +53,7 @@ sale: Optional[bool] = None):
 
 @router.get("/{id}")
 async def show_one_product(id,
-Auth: str = Depends(testAuth)
+Auth: str = Depends(u.testAuth)
 ):
     resDB = session.query(Products).filter(Products.pid == id)
     if resDB.all():
