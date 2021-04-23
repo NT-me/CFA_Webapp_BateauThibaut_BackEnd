@@ -35,7 +35,7 @@ stockTypeList = u.LIST_BI_KEYWORDS
 
 
 @router.patch("/")
-def manage_products(items: List[Item], request: Request):
+async def manage_products(items: List[Item], request: Request):
     resDB = session.query(Products).filter(Products.pid.in_([i.id for i in items]))
     HTTPRet = {"status": "success"}
 

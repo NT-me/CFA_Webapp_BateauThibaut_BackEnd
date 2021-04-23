@@ -24,7 +24,7 @@ session = Session()
 
 
 @router.get("/history/all")
-def return_informations_about_transactions(request: Request, startInterval: Optional[int] = None,
+async def return_informations_about_transactions(request: Request, startInterval: Optional[int] = None,
 endInterval: Optional[int] = None,
 category: Optional[str] = None,
 availability: Optional[bool] = None,
@@ -32,11 +32,9 @@ sale: Optional[bool] = None,
 type: Optional[str] = None,
 revenue: Optional[bool] = None
 ):
-
     reqURL_BASE = u.localAPIAdress(request)+"/products/info/all"
     resDB = session.query(Transactions)
     headers = {'Connection': 'close'}
-
     if startInterval is not None:
         resDB = resDB.filter(Transactions.time >= startInterval)
 
@@ -109,7 +107,7 @@ class ItemTransact(BaseModel):
 
 
 @router.put("/history")
-def add_new_transaction(listTransactions: List[ItemTransact]):
+async def add_new_transaction(listTransactions: List[ItemTransact]):
     retList = []
     for item in listTransactions:
         flagOkstl = False
@@ -147,7 +145,7 @@ def add_new_transaction(listTransactions: List[ItemTransact]):
 
 
 @router.get("/accountingresult")
-def show_accounting_result(year: Optional[int] = date.today().year):
+async def show_accounting_result(year: Optional[int] = date.today().year):
     fstDay = datetime(year, 1, 1, 0, 0)
     lstDay = datetime(year, 12, 31, 23, 59)
 

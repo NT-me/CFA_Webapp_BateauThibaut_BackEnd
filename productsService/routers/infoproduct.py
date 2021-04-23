@@ -38,7 +38,7 @@ def testAuth(request: Request, Auth: str = Header(None)):
 
 
 @router.get("/all")
-def show_all_products(request: Request,
+async def show_all_products(request: Request,
 category: Optional[str] = None,
 availability: Optional[bool] = None,
 sale: Optional[bool] = None):
@@ -66,7 +66,7 @@ sale: Optional[bool] = None):
 
 
 @router.get("/{id}")
-def show_one_product(id):
+async def show_one_product(id):
     resDB = session.query(Products).filter(Products.pid == id)
     if resDB.all():
         r = requests.get(url=ADRESS_CANVA + "tig/product/{}".format(id))
