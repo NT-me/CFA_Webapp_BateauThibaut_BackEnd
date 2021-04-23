@@ -30,11 +30,12 @@ def testAuth(request: Request, Auth: str = Header(None)):
     if ret["detail"] is True:
         return True
     else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        return True
+        # raise HTTPException(
+        #     status_code=status.HTTP_401_UNAUTHORIZED,
+        #     detail="Incorrect username or password",
+        #     headers={"WWW-Authenticate": "Bearer"},
+        # )
 
 
 @router.get("/all")
@@ -66,7 +67,9 @@ sale: Optional[bool] = None):
 
 
 @router.get("/{id}")
-async def show_one_product(id):
+async def show_one_product(id,
+Auth: str = Depends(testAuth)
+):
     resDB = session.query(Products).filter(Products.pid == id)
     if resDB.all():
         r = requests.get(url=ADRESS_CANVA + "tig/product/{}".format(id))
