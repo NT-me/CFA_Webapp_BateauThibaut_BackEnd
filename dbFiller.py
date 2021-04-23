@@ -13,7 +13,7 @@ if __name__ == "__main__":
     conn = sql.connect('BIService/BIServiceDB.db')
 
     prList = req.get(url="http://loutre-duveteuse.fr.nf/products/info/all")
-    typesList = ["RPV", "RPI", "A"]
+    typesList = ["RPV", "RPI"]
     prList = prList.json()
     prQt = {}
 
@@ -26,7 +26,7 @@ if __name__ == "__main__":
         sale = 1 if currentPr["sale"] else 0
         unitPrice = currentPr["price"]
         sellPrice = unitPrice * 2 + 10
-        type = random.choices(typesList, weights=(5, 1, 1))
+        type = random.choices(typesList, weights=(10, 1))
 
         quantity = random.randint(1, 100)
 
