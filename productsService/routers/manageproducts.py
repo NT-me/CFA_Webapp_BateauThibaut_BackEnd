@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 import requests
 import utils as u
 from productsService.data.models import Products
@@ -35,7 +35,9 @@ stockTypeList = u.LIST_BI_KEYWORDS
 
 
 @router.patch("/")
-async def manage_products(items: List[Item], request: Request):
+async def manage_products(items: List[Item],
+request: Request,
+Auth: str = Depends(u.testAuth)):
     resDB = session.query(Products).filter(Products.pid.in_([i.id for i in items]))
     HTTPRet = {"status": "success"}
 
@@ -94,7 +96,7 @@ async def manage_products(items: List[Item], request: Request):
             listRet.append(itemRet)
             HTTPRet["New state"] = listRet
         if listJSON:
-            headers = {'Connection': 'close'}
+            headers = {'Connection': 'close', 'Auth': Auth}
             ret = requests.put(url=u.localAPIAdress(request)+"/bi/info/history", json=listJSON, headers=headers)
             HTTPRet["BI Return"] = ret.json()
         return HTTPRet

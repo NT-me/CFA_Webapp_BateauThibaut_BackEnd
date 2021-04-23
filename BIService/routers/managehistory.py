@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 import requests
 import utils as u
 from BIService.data.models import Transactions
@@ -24,17 +24,19 @@ session = Session()
 
 
 @router.get("/history/all")
-async def return_informations_about_transactions(request: Request, startInterval: Optional[int] = None,
+async def return_informations_about_transactions(request: Request,
+startInterval: Optional[int] = None,
 endInterval: Optional[int] = None,
 category: Optional[str] = None,
 availability: Optional[bool] = None,
 sale: Optional[bool] = None,
 type: Optional[str] = None,
-revenue: Optional[bool] = None
+revenue: Optional[bool] = None,
+Auth: str = Depends(u.testAuth)
 ):
     reqURL_BASE = u.localAPIAdress(request)+"/products/info/all"
     resDB = session.query(Transactions)
-    headers = {'Connection': 'close'}
+    headers = {'Connection': 'close', 'Auth': Auth}
     if startInterval is not None:
         resDB = resDB.filter(Transactions.time >= startInterval)
 
@@ -107,7 +109,8 @@ class ItemTransact(BaseModel):
 
 
 @router.put("/history")
-async def add_new_transaction(listTransactions: List[ItemTransact]):
+async def add_new_transaction(listTransactions: List[ItemTransact],
+Auth: str = Depends(u.testAuth)):
     retList = []
     for item in listTransactions:
         flagOkstl = False
@@ -145,7 +148,9 @@ async def add_new_transaction(listTransactions: List[ItemTransact]):
 
 
 @router.get("/accountingresult")
-async def show_accounting_result(year: Optional[int] = date.today().year):
+async def show_accounting_result(year: Optional[int] = date.today().year,
+Auth: str = Depends(u.testAuth)):
+
     fstDay = datetime(year, 1, 1, 0, 0)
     lstDay = datetime(year, 12, 31, 23, 59)
 
