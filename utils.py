@@ -1,4 +1,4 @@
-from fastapi import Request, Header
+from fastapi import Request, Header, HTTPException, status
 import requests
 
 ADRESS_CANVA = "http://51.255.166.155:1352/"
@@ -29,9 +29,8 @@ def testAuth(request: Request, Auth: str = Header(None)):
     if ret["detail"] is True:
         return Auth
     else:
-        return True
-        # raise HTTPException(
-        #     status_code=status.HTTP_401_UNAUTHORIZED,
-        #     detail="Incorrect username or password",
-        #     headers={"WWW-Authenticate": "Bearer"},
-        # )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
